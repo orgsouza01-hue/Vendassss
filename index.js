@@ -2,7 +2,7 @@ require('dotenv').config();
 const { Client, GatewayIntentBits, Partials, Collection, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ChannelType, PermissionsBitField } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
-const Database = require('./database/database');
+const Database = require('./database/database'); // JA É UMA INSTÂNCIA PRONTA
 const WebServer = require('./web/server');
 
 const client = new Client({
@@ -18,7 +18,7 @@ const client = new Client({
 });
 
 client.commands = new Collection();
-client.db = new Database();
+client.db = Database; // ✅ USA DIRETO, SEM NEW — JÁ É INSTÂNCIA
 client.configCache = new Map();
 client.productsCache = new Map();
 client.couponsCache = new Map();
@@ -78,9 +78,9 @@ for (const file of eventFiles) {
 // Inicializar banco e carregar cache
 client.db.init().then(async () => {
     await loadCache();
-    console.log('Banco de dados inicializado e cache carregado!');
+    console.log('✅ Banco de dados inicializado e cache carregado!');
 }).catch(err => {
-    console.error('Erro ao inicializar banco:', err);
+    console.error('❌ Erro ao inicializar banco:', err);
 });
 
 // Iniciar servidor web
@@ -89,9 +89,8 @@ webServer.start();
 
 // Reconectar ao canal de voz após reinício
 client.on('ready', async () => {
-    console.log(`Bot conectado como ${client.user.tag}!`);
+    console.log(`✅ Bot conectado como ${client.user.tag}!`);
     
-    // Reconectar em canais de voz configurados
     const configs = await client.db.getAllConfigs();
     const voiceConfigs = configs.filter(c => c.key === 'voice_channel_id');
     
@@ -102,15 +101,14 @@ client.on('ready', async () => {
                 const channel = guild.channels.cache.get(vc.value);
                 if (channel && channel.type === ChannelType.GuildVoice) {
                     await channel.join().catch(() => {});
-                    console.log(`Reconectado ao canal de voz em ${guild.name}`);
+                    console.log(`🔊 Reconectado ao canal de voz em ${guild.name}`);
                 }
             }
         } catch (e) {
-            console.log('Não foi possível reconectar ao canal de voz:', e.message);
+            console.log('⚠️ Não foi possível reconectar ao canal de voz:', e.message);
         }
     }
 
-    // Iniciar sistema de mensagens automáticas do Facebook
     startFacebookAutoMessages();
 });
 
@@ -128,7 +126,6 @@ async function startFacebookAutoMessages() {
                 const channel = guild.channels.cache.get(fb.value);
                 if (!channel) continue;
 
-                // Apagar mensagem antiga se existir
                 const oldMsgId = client.feedbackMessages.get(fb.guild_id);
                 if (oldMsgId) {
                     try {
@@ -147,7 +144,7 @@ async function startFacebookAutoMessages() {
                 const msg = await channel.send({ embeds: [embed] });
                 client.feedbackMessages.set(fb.guild_id, msg.id);
             } catch (e) {
-                console.log('Erro na mensagem automática do Facebook:', e.message);
+                console.log('⚠️ Erro na mensagem automática do Facebook:', e.message);
             }
         }
     }, 10000);
@@ -172,7 +169,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 });
 
 client.login(process.env.TOKEN).catch(err => {
-    console.error('Erro ao fazer login:', err);
+    console.error('❌ Erro ao fazer login:', err);
 });
 
 module.exports = client;
