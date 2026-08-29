@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits, ChannelType } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -8,7 +8,6 @@ module.exports = {
 
     async execute(interaction, client) {
         const g = interaction.guild;
-        
         const logCh = await client.db.getConfig(g.id, 'log_channel_id');
         const fbCh = await client.db.getConfig(g.id, 'fb_channel_id');
         const cliRole = await client.db.getConfig(g.id, 'customer_role_id');
@@ -28,15 +27,15 @@ module.exports = {
             .setTimestamp();
 
         const row1 = new ActionRowBuilder().addComponents(
-            client.assets.applyToButton(new ButtonBuilder().setCustomId('cfg_logs').setLabel('Configurar Logs').setStyle(ButtonStyle.Primary), 'configurar_logs'),
-            client.assets.applyToButton(new ButtonBuilder().setCustomId('cfg_facebook').setLabel('Configurar Facebook').setStyle(ButtonStyle.Primary), 'configurar_facebook')
+            client.assets.apply(new ButtonBuilder().setCustomId('cfg_logs').setLabel('Configurar Logs').setStyle(ButtonStyle.Primary), 'configurar_logs'),
+            client.assets.apply(new ButtonBuilder().setCustomId('cfg_facebook').setLabel('Configurar Facebook').setStyle(ButtonStyle.Primary), 'configurar_facebook')
         );
         const row2 = new ActionRowBuilder().addComponents(
-            client.assets.applyToButton(new ButtonBuilder().setCustomId('cfg_role').setLabel('Configurar Cargo').setStyle(ButtonStyle.Primary), 'configurar_cargo'),
-            client.assets.applyToButton(new ButtonBuilder().setCustomId('cfg_voice').setLabel('Conectar Voz').setStyle(ButtonStyle.Success), 'conectar_voz')
+            client.assets.apply(new ButtonBuilder().setCustomId('cfg_role').setLabel('Configurar Cargo').setStyle(ButtonStyle.Primary), 'configurar_cargo'),
+            client.assets.apply(new ButtonBuilder().setCustomId('cfg_voice').setLabel('Conectar Voz').setStyle(ButtonStyle.Success), 'conectar_voz')
         );
         const row3 = new ActionRowBuilder().addComponents(
-            client.assets.applyToButton(new ButtonBuilder().setCustomId('cfg_panel').setLabel('Criar Painel Vendas').setStyle(ButtonStyle.Secondary), 'criar_painel')
+            client.assets.apply(new ButtonBuilder().setCustomId('cfg_panel').setLabel('Criar Painel Vendas').setStyle(ButtonStyle.Secondary), 'criar_painel')
         );
 
         await interaction.reply({ embeds: [embed], components: [row1, row2, row3], ephemeral: true });
