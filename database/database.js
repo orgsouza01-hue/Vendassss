@@ -4,25 +4,42 @@ const fs = require('fs');
 
 class Database {
     constructor() {
+        // ✅ SEM DISCO? → usa pasta do projeto SEMPRE FUNCIONA
         if (process.env.NODE_ENV === 'production') {
-            if (!fs.existsSync('/data')) try { fs.mkdirSync('/data', { recursive: true }); } catch(e) {}
-            this.dbPath = '/data/bot.db';
+            // Tenta /data se existir; senão cai pra pasta atual garantida
+            try {
+                if (fs.existsSync('/data') && fs.accessSync('/data', fs.constants.W_OK) === undefined) {
+                    this.dbPath = '/data/bot.db';
+                } else { throw new Error('sem permissão') }
+            } catch {
+                const root = path.resolve(__dirname, '..');
+                if (!fs.existsSync(root)) fs.mkdirSync(root, { recursive: true });
+                this.dbPath = path.join(root, 'bot.db');
+            }
         } else {
             this.dbPath = path.join(__dirname, 'bot.db');
         }
         this.db = null;
-        console.log(`📦 Banco: ${this.dbPath}`);
+        console.log(`📦 Banco caminho: ${this.dbPath}`);
     }
 
     async init() {
         try {
+            // Garante que o diretório PAI existe
+            const dir = path.dirname(this.dbPath);
+            if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+
             this.db = new DatabaseSync(this.dbPath);
             this.db.exec('PRAGMA journal_mode = WAL');
             this.db.exec('PRAGMA foreign_keys = ON');
             this.db.exec('PRAGMA busy_timeout = 5000');
             this._createTables();
+            console.log('✅ Banco INICIALIZADO PERFEITAMENTE!');
             return Promise.resolve(true);
-        } catch (err) { console.error('❌ ERRO DB:', err); return Promise.reject(err); }
+        } catch (err) {
+            console.error('❌ ERRO DB init:', err.message);
+            return Promise.reject(err);
+        }
     }
 
     _createTables() {
@@ -34,9 +51,10 @@ class Database {
         this.db.exec(`CREATE TABLE IF NOT EXISTS panels(id INTEGER PRIMARY KEY AUTOINCREMENT,guild_id TEXT NOT NULL,message_id TEXT NOT NULL,channel_id TEXT NOT NULL,title TEXT NOT NULL,description TEXT,banner_url TEXT,created_at DATETIME DEFAULT CURRENT_TIMESTAMP)`);
     }
 
+    // ============ CONFIGS ============
     setConfig(g,k,v){try{const s=this.db.prepare(`INSERT OR REPLACE INTO configs(guild_id,key,value)VALUES(?,?,?)`);return Promise.resolve(s.run(g,k,v).lastInsertRowid)}catch(e){return Promise.reject(e)}}
     getConfig(g,k){try{const s=this.db.prepare(`SELECT value FROM configs WHERE guild_id=? AND key=?`).get(g,k);return Promise.resolve(s?.value??null)}catch(e){return Promise.reject(e)}}
-    getAllConfigs(){try{return Promise.resolve(this.db.prepare(`SELECT * FROM configs`).all())}catch(e){return Promise.reject(e)}}
+    getAllConfigs(){try{if(!this.db) return Promise.resolve([]);return Promise.resolve(this.db.prepare(`SELECT * FROM configs`).all())}catch(e){return Promise.reject(e)}}
     addProduct(g,p,n,d,pr,s,a){try{const st=this.db.prepare(`INSERT INTO products(guild_id,panel_id,name,description,price,stock,auto_delivery)VALUES(?,?,?,?,?,?,?)`);return Promise.resolve(st.run(g,p,n,d,pr,s,a||null).lastInsertRowid)}catch(e){return Promise.reject(e)}}
     getProductsByPanel(g,p){try{return Promise.resolve(this.db.prepare(`SELECT * FROM products WHERE guild_id=? AND panel_id=?`).all(g,p))}catch(e){return Promise.reject(e)}}
     getProductById(i){try{return Promise.resolve(this.db.prepare(`SELECT * FROM products WHERE id=?`).get(i))}catch(e){return Promise.reject(e)}}
