@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: bot-vendas
+    runtime: node
+    region: sa
+    plan: free
+    buildCommand: npm install
+    startCommand: node index.js
+    numInstances: 1
+    healthCheckPath: /api/status
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: 26.4.0
+      - key: WEB_PORT
+        value: 3000
+      - key: NODE_ENV
+        value: production
+    disk:
+      name: data
+      mountPath: /data
+      sizeGB: 1

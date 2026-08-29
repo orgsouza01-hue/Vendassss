@@ -1,0 +1,20 @@
+{
+  "name": "bot-vendas-avancado",
+  "version": "1.0.0",
+  "description": "Bot Discord de vendas avançado - versão Android otimizada",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "deploy": "node deploy-commands.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.15.3",
+    "qrcode": "^1.5.3",
+    "express": "^4.19.2",
+    "dotenv": "^16.4.5",
+    "moment": "^2.30.1"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}
