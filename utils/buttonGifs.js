@@ -1,49 +1,63 @@
 const fs = require('fs');
 const path = require('path');
 
-class ButtonGifs {
+class ButtonAssets {
     constructor() {
-        this.gifs = new Map();
+        this.assets = new Map();
         this.basePath = path.join(__dirname, '..', 'buttons_gifs');
-        this.loadGifs();
+        this.load();
     }
 
-    loadGifs() {
-        if (!fs.existsSync(this.basePath)) return;
+    load() {
+        if (!fs.existsSync(this.basePath)) {
+            console.log('⚠️ Pasta buttons_gifs não existe — criando estrutura...');
+            fs.mkdirSync(this.basePath, { recursive: true });
+            return;
+        }
 
         const folders = fs.readdirSync(this.basePath);
-        
         for (const folder of folders) {
             const folderPath = path.join(this.basePath, folder);
             if (!fs.statSync(folderPath).isDirectory()) continue;
 
             const files = fs.readdirSync(folderPath);
-            const gifFile = files.find(f => f.toLowerCase().endsWith('.gif'));
-            
-            if (gifFile) {
-                this.gifs.set(folder, path.join(folderPath, gifFile));
+            let found = null;
+            for (const ext of ['.gif', '.png', '.jpg', '.jpeg', '.webp']) {
+                found = files.find(f => f.toLowerCase().endsWith(ext));
+                if (found) break;
+            }
+
+            if (found) {
+                this.assets.set(folder.toLowerCase(), {
+                    path: path.join(folderPath, found),
+                    name: found,
+                    ext: path.extname(found).toLowerCase()
+                });
             }
         }
-
-        console.log(`🎨 ${this.gifs.size} GIFs de botões carregados!`);
+        console.log(`🎨 ${this.assets.size} assets de botões carregados!`);
     }
 
-    getGif(buttonName) {
-        return this.gifs.get(buttonName) || null;
+    get(buttonName) {
+        return this.assets.get(buttonName.toLowerCase()) || null;
     }
 
-    hasGif(buttonName) {
-        return this.gifs.has(buttonName);
+    has(buttonName) {
+        return this.assets.has(buttonName.toLowerCase());
     }
 
-    getAllGifs() {
-        return Object.fromEntries(this.gifs);
-    }
-
-    reload() {
-        this.gifs.clear();
-        this.loadGifs();
+    // Aplica emoji/ícone no botão se tiver asset configurado
+    applyToButton(button, buttonName) {
+        const asset = this.get(buttonName);
+        if (asset) {
+            // Tenta extrair emoji do nome do arquivo se começar com emoji
+            const emojiMatch = asset.name.match(/^(\p{Emoji_Presentation}|\p{Extended_Pictographic})/u);
+            if (emojiMatch) {
+                button.setEmoji(emojiMatch[0]);
+            }
+        }
+        return button;
     }
 }
 
-module.exports = new ButtonGifs();
+module.exports = new ButtonAssets();

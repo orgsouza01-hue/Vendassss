@@ -1,20 +1,19 @@
 {
-  "name": "bot-vendas-avancado",
-  "version": "1.0.0",
-  "description": "Bot Discord de vendas avançado - versão Android otimizada",
+  "name": "bot-vendas",
+  "version": "2.0.0",
+  "description": "Bot Vendas Completo - Voz + Produtos + GIFs + /edita",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "deploy": "node deploy-commands.js"
   },
   "dependencies": {
-    "discord.js": "^14.15.3",
-    "qrcode": "^1.5.3",
-    "express": "^4.19.2",
-    "dotenv": "^16.4.5",
+    "discord.js": "^14.17.0",
+    "@discordjs/voice": "^0.17.0",
+    "qrcode": "^1.5.4",
+    "express": "^5.2.1",
+    "dotenv": "^16.4.7",
     "moment": "^2.30.1"
   },
-  "engines": {
-    "node": ">=22.0.0"
-  }
+  "engines": { "node": ">=24.0.0" }
 }
