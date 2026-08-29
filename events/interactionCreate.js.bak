@@ -110,11 +110,10 @@ async function handleButtons(interaction, client) {
     // 🔥 SISTEMA ANTIGO: CRIAR PAINEL VENDAS → 2 BOTÕES
     // ============================================================
     if (id === 'cfg_panel') {
-        const btnCriar = new ButtonBuilder().setCustomId('btn_criar_produto').setLabel('➕ Criar Produto').setStyle(ButtonStyle.Primary);
-        const btnEnviar = new ButtonBuilder().setCustomId('btn_enviar_painel').setLabel('📤 Enviar Painel').setStyle(ButtonStyle.Success);
-        client.assets.apply(btnCriar, 'criar_produto', interaction.guild);
-        client.assets.apply(btnEnviar, 'enviar_painel', interaction.guild);
-        const row = new ActionRowBuilder().addComponents(btnCriar, btnEnviar);
+        const row = new ActionRowBuilder().addComponents(
+            client.assets.apply(new ButtonBuilder().setCustomId('btn_criar_produto').setLabel('➕ Criar Produto').setStyle(ButtonStyle.Primary), 'criar_produto'),
+            client.assets.apply(new ButtonBuilder().setCustomId('btn_enviar_painel').setLabel('📤 Enviar Painel').setStyle(ButtonStyle.Success), 'enviar_painel')
+        );
         await interaction.reply({ content: '🛒 Escolha uma opção:', components: [row], ephemeral: true });
         return;
     }

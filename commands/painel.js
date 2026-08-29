@@ -26,17 +26,23 @@ module.exports = {
             .setFooter({ text: g.name })
             .setTimestamp();
 
-        const row1 = new ActionRowBuilder().addComponents(
-            client.assets.apply(new ButtonBuilder().setCustomId('cfg_logs').setLabel('Configurar Logs').setStyle(ButtonStyle.Primary), 'configurar_logs'),
-            client.assets.apply(new ButtonBuilder().setCustomId('cfg_facebook').setLabel('Configurar Facebook').setStyle(ButtonStyle.Primary), 'configurar_facebook')
-        );
-        const row2 = new ActionRowBuilder().addComponents(
-            client.assets.apply(new ButtonBuilder().setCustomId('cfg_role').setLabel('Configurar Cargo').setStyle(ButtonStyle.Primary), 'configurar_cargo'),
-            client.assets.apply(new ButtonBuilder().setCustomId('cfg_voice').setLabel('Conectar Voz').setStyle(ButtonStyle.Success), 'conectar_voz')
-        );
-        const row3 = new ActionRowBuilder().addComponents(
-            client.assets.apply(new ButtonBuilder().setCustomId('cfg_panel').setLabel('Criar Painel Vendas').setStyle(ButtonStyle.Secondary), 'criar_painel')
-        );
+        // Cria botões e aplica emojis (passa o servidor!)
+        const btnLogs = new ButtonBuilder().setCustomId('cfg_logs').setLabel('📊 Configurar Logs').setStyle(ButtonStyle.Primary);
+        const btnFb = new ButtonBuilder().setCustomId('cfg_facebook').setLabel('📱 Configurar Facebook').setStyle(ButtonStyle.Primary);
+        const btnRole = new ButtonBuilder().setCustomId('cfg_role').setLabel('👔 Configurar Cargo').setStyle(ButtonStyle.Primary);
+        const btnVoice = new ButtonBuilder().setCustomId('cfg_voice').setLabel('🔊 Conectar Voz').setStyle(ButtonStyle.Success);
+        const btnPanel = new ButtonBuilder().setCustomId('cfg_panel').setLabel('🛒 Criar Painel Vendas').setStyle(ButtonStyle.Secondary);
+
+        // Aplica emojis dos assets
+        client.assets.apply(btnLogs, 'configurar_logs', g);
+        client.assets.apply(btnFb, 'configurar_facebook', g);
+        client.assets.apply(btnRole, 'configurar_cargo', g);
+        client.assets.apply(btnVoice, 'conectar_voz', g);
+        client.assets.apply(btnPanel, 'criar_painel', g);
+
+        const row1 = new ActionRowBuilder().addComponents(btnLogs, btnFb);
+        const row2 = new ActionRowBuilder().addComponents(btnRole, btnVoice);
+        const row3 = new ActionRowBuilder().addComponents(btnPanel);
 
         await interaction.reply({ embeds: [embed], components: [row1, row2, row3], ephemeral: true });
     }
